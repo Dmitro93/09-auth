@@ -10,6 +10,7 @@ import Link from "next/link";
 
 type Props = {
   tag: string;
+  
 };
 
 export default function NotesClient({ tag }: Props) {
@@ -17,7 +18,6 @@ export default function NotesClient({ tag }: Props) {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
@@ -26,7 +26,6 @@ export default function NotesClient({ tag }: Props) {
     return () => clearTimeout(timer);
   }, [search]);
 
- 
   const handleSearchChange = (value: string) => {
     setSearch(value);
     setPage(1);
@@ -45,20 +44,25 @@ export default function NotesClient({ tag }: Props) {
   if (isLoading || !data) return <p>Loading...</p>;
 
   return (
-  <div>
-    <Link href="/notes/action/create">Create note +</Link>
+    <div>
+      <Link href="/notes/action/create">Create note +</Link>
 
-    <SearchBox value={search} onChange={handleSearchChange} />
+      <SearchBox value={search} onChange={handleSearchChange} />
 
-    {data.notes.length > 0 && (
-      <NoteList notes={data.notes} />
-    )}
+      {data.notes.length > 0 ? (
+        <>
+          <NoteList notes={data.notes} />
 
-    <Pagination
-      currentPage={page}
-      totalPages={data.totalPages}
-      onPageChange={setPage}
-    />
-  </div>
-);
+          
+          <Pagination
+            currentPage={page}
+            totalPages={data.totalPages}
+            onPageChange={setPage}
+          />
+        </>
+      ) : (
+        <p>No notes found</p>
+      )}
+    </div>
+  );
 }

@@ -1,17 +1,40 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  
-  const isAuthenticated = request.cookies.get("refreshToken");
+  const refreshToken = request.cookies.get("refreshToken");
+  const accessToken = request.cookies.get("accessToken");
 
   const isAuthPage =
     pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up");
 
   const isPrivatePage =
     pathname.startsWith("/profile") || pathname.startsWith("/notes");
+
+  let isAuthenticated = !!accessToken;
+
+  
+  if (!accessToken && refreshToken) {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/session`,
+        {
+          method: "GET",
+          headers: {
+            Cookie: `refreshToken=${refreshToken.value}`,
+          },
+        }
+      );
+
+      if (res.ok) {
+        isAuthenticated = true;
+      }
+    } catch {
+      isAuthenticated = false;
+    }
+  }
 
   
   if (!isAuthenticated && isPrivatePage) {

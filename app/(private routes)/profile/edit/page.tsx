@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { getMe, updateMe } from "@/lib/api/clientApi";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useAuthStore } from "@/lib/store/authStore"; 
 
 export default function EditProfilePage() {
   const [username, setUsername] = useState("");
@@ -12,6 +13,7 @@ export default function EditProfilePage() {
   const [avatar, setAvatar] = useState("");
 
   const router = useRouter();
+  const setUser = useAuthStore((state) => state.setUser); 
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -26,8 +28,16 @@ export default function EditProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await updateMe({ username });
+
+    const updatedUser = await updateMe({ username });
+
+    setUser(updatedUser); 
+
     router.push("/profile");
+  };
+
+  const handleCancel = () => {
+    router.back(); // 
   };
 
   return (
@@ -55,7 +65,12 @@ export default function EditProfilePage() {
             <button type="submit" className={css.saveButton}>
               Save
             </button>
-            <button type="button" className={css.cancelButton} onClick={() => router.push("/profile")}>
+
+            <button
+              type="button"
+              className={css.cancelButton}
+              onClick={handleCancel} 
+            >
               Cancel
             </button>
           </div>

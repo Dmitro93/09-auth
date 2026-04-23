@@ -1,9 +1,18 @@
-import type { ReactNode } from "react";
+"use client";
 
-export default function AuthLayout({ children }: { children: ReactNode }) {
-  return (
-    <div>
-      {children}
-    </div>
-  );
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+export default function AuthLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.refresh();
+  }, [router]);
+
+  return <>{children}</>;
 }

@@ -13,7 +13,8 @@ export async function generateMetadata({
   const { id } = await params;
 
   const note = await fetchNoteById(id);
- return {
+
+  return {
     title: note.title,
     description: note.content.slice(0, 100),
     openGraph: {
@@ -29,9 +30,7 @@ export async function generateMetadata({
 
 export default async function NoteDetailsPage({
   params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+}: Props) {
   const { id } = await params;
 
   const queryClient = new QueryClient();
@@ -43,7 +42,8 @@ export default async function NoteDetailsPage({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <NoteDetailsClient />
+      
+      <NoteDetailsClient id={id} />
     </HydrationBoundary>
   );
 }
