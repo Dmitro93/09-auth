@@ -15,7 +15,6 @@ export async function proxy(request: NextRequest) {
 
   let isAuthenticated = !!accessToken;
 
-  
   const response = NextResponse.next();
 
   
@@ -34,12 +33,22 @@ export async function proxy(request: NextRequest) {
       if (res.ok) {
         isAuthenticated = true;
 
-        
         const setCookie = res.headers.get("set-cookie");
 
         if (setCookie) {
-         
-          response.headers.set("set-cookie", setCookie);
+        
+          const cookiesArray = setCookie.split(",");
+
+          cookiesArray.forEach((cookieStr) => {
+            const [cookiePair] = cookieStr.split(";");
+            const [name, value] = cookiePair.split("=");
+
+            if (name && value) {
+              response.cookies.set(name.trim(), value.trim(), {
+                path: "/",
+              });
+            }
+          });
         }
       }
     } catch {
@@ -47,12 +56,12 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  
+ 
   if (!isAuthenticated && isPrivatePage) {
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
-  
+ 
   if (isAuthenticated && isAuthPage) {
     return NextResponse.redirect(new URL("/profile", request.url));
   }
