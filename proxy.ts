@@ -16,6 +16,9 @@ export async function proxy(request: NextRequest) {
   let isAuthenticated = !!accessToken;
 
   
+  const response = NextResponse.next();
+
+  
   if (!accessToken && refreshToken) {
     try {
       const res = await fetch(
@@ -30,6 +33,14 @@ export async function proxy(request: NextRequest) {
 
       if (res.ok) {
         isAuthenticated = true;
+
+        
+        const setCookie = res.headers.get("set-cookie");
+
+        if (setCookie) {
+         
+          response.headers.set("set-cookie", setCookie);
+        }
       }
     } catch {
       isAuthenticated = false;
@@ -46,7 +57,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/profile", request.url));
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
